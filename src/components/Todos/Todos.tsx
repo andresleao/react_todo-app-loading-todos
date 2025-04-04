@@ -10,6 +10,8 @@ import { TodoItem } from '../TodoItem';
 export const Todos = () => {
   const { todos, setTodos } = useContext(TodoContext);
 
+  const filteredTodos = todos ? [...todos].filter(todo => todo.completed) : [];
+
   const handleGetTodos = useCallback(async () => {
     try {
       const data = await getTodos();
@@ -30,7 +32,7 @@ export const Todos = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos?.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+      {filteredTodos?.map(todo => <TodoItem key={todo.id} todo={todo} />)}
     </section>
   );
 };
