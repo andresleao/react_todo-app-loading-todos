@@ -14,7 +14,7 @@ type TodoItemProps = {
 };
 
 export const TodoItem = ({ todo }: TodoItemProps) => {
-  const { setErrorType, setTodos } = useContext(TodoContext);
+  const { setErrorType, setTodos, isListLoading } = useContext(TodoContext);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -181,7 +181,9 @@ export const TodoItem = ({ todo }: TodoItemProps) => {
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
-        className={cn('modal overlay', { 'is-active': isLoading })}
+        className={cn('modal overlay', {
+          'is-active': isLoading || isListLoading,
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

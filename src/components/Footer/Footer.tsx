@@ -1,8 +1,14 @@
 import { useContext } from 'react';
 import { TodoContext } from '../../context/TodoContext';
+import { TodoFilterType } from '../../types/TodoFilterType';
+import cn from 'classnames';
+import { deleteTodo, getTodos } from '../../api/todos';
+import { ErrorMessageType } from '../../types/ErrorMessageType';
 
 export const Footer = () => {
-  const { todos } = useContext(TodoContext);
+  const { selectedFilter, setSelectedFilter, setIsListLoading } =
+    useContext(TodoContext);
+  const { todos, setTodos, setErrorType } = useContext(TodoContext);
 
   if ((todos && todos.length === 0) || todos === null) {
     return null;
@@ -10,26 +16,70 @@ export const Footer = () => {
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
 
+  const hasCompletedTodo = todos.some(todo => todo.completed);
+
+  const handleDeleteCompletedTodos = async () => {
+    setIsListLoading(true);
+
+    try {
+      if (todos) {
+        const completedTodos = todos.filter(todo => todo.completed);
+
+        if (completedTodos.length === 0) {
+          return;
+        }
+
+        await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+
+        const updatedTodos = await getTodos();
+
+        if (updatedTodos) {
+          setTodos(updatedTodos);
+        }
+      }
+    } catch (error) {
+      setErrorType(ErrorMessageType.Delete);
+    } finally {
+      setIsListLoading(false);
+    }
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
         {`${activeTodosCount} items left`}
       </span>
 
-      {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a href="#/" className="filter__link selected" data-cy="FilterLinkAll">
+        <a
+          href="#/"
+          className={cn('filter__link', {
+            selected: selectedFilter === TodoFilterType.All,
+          })}
+          data-cy="FilterLinkAll"
+          onClick={() => setSelectedFilter(TodoFilterType.All)}
+        >
           All
         </a>
 
-        <a href="#/active" className="filter__link" data-cy="FilterLinkActive">
+        <a
+          href="#/active"
+          className={cn('filter__link', {
+            selected: selectedFilter === TodoFilterType.Active,
+          })}
+          data-cy="FilterLinkActive"
+          onClick={() => setSelectedFilter(TodoFilterType.Active)}
+        >
           Active
         </a>
 
         <a
           href="#/completed"
-          className="filter__link"
+          className={cn('filter__link', {
+            selected: selectedFilter === TodoFilterType.Completed,
+          })}
           data-cy="FilterLinkCompleted"
+          onClick={() => setSelectedFilter(TodoFilterType.Completed)}
         >
           Completed
         </a>
@@ -40,6 +90,8 @@ export const Footer = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
+        disabled={!hasCompletedTodo}
+        onClick={handleDeleteCompletedTodos}
       >
         Clear completed
       </button>

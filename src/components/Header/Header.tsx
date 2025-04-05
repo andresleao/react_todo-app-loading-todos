@@ -8,14 +8,17 @@ import { Todo } from '../../types/Todo';
 import cn from 'classnames';
 
 export const Header = () => {
-  const { todos, setTodos, setErrorType } = useContext(TodoContext);
+  const { todos, setTodos, setErrorType, setIsListLoading } =
+    useContext(TodoContext);
   const [title, setTitle] = useState('');
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
-  const setAllTodosCompleted = async () => {
+  const setAllTodosActive = async () => {
+    setIsListLoading(true);
+
     try {
       if (todos) {
         const completedTodos = todos.filter(todo => todo.completed);
@@ -36,7 +39,8 @@ export const Header = () => {
       }
     } catch (error) {
       setErrorType(ErrorMessageType.Update);
-      throw new Error('An error ocurred');
+    } finally {
+      setIsListLoading(false);
     }
   };
 
@@ -81,17 +85,15 @@ export const Header = () => {
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       <button
         type="button"
         className={cn('todoapp__toggle-all', {
           active: isAllTodosCompleted,
         })}
         data-cy="ToggleAllButton"
-        onClick={setAllTodosCompleted}
+        onClick={setAllTodosActive}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleOnSubmit}>
         <input
           data-cy="NewTodoField"
