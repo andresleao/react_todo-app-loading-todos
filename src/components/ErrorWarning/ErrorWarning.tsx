@@ -1,10 +1,10 @@
 import cn from 'classnames';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { TodoContext } from '../../context/TodoContext';
 import { ErrorMessageType } from '../../types/ErrorMessageType';
 
 export const ErrorWarning = () => {
-  const { errorType } = useContext(TodoContext);
+  const { errorType, setErrorType } = useContext(TodoContext);
 
   const getErrorMessage = () => {
     switch (errorType) {
@@ -23,6 +23,18 @@ export const ErrorWarning = () => {
     }
   };
 
+  useEffect(() => {
+    if (!errorType) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setErrorType(null);
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [errorType, setErrorType]);
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -30,7 +42,12 @@ export const ErrorWarning = () => {
         hidden: !errorType,
       })}
     >
-      <button data-cy="HideErrorButton" type="button" className="delete" />
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        onClick={() => setErrorType(null)}
+      />
       {getErrorMessage()}
     </div>
   );

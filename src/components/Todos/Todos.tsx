@@ -7,9 +7,10 @@ import { getTodos } from '../../api/todos';
 import { TodoContext } from '../../context/TodoContext';
 import { TodoItem } from '../TodoItem';
 import { TodoFilterType } from '../../types/TodoFilterType';
+import { ErrorMessageType } from '../../types/ErrorMessageType';
 
 export const Todos = () => {
-  const { selectedFilter } = useContext(TodoContext);
+  const { selectedFilter, setErrorType } = useContext(TodoContext);
   const { todos, setTodos } = useContext(TodoContext);
 
   const handleGetTodos = useCallback(async () => {
@@ -18,9 +19,9 @@ export const Todos = () => {
 
       setTodos([...data]);
     } catch (error) {
-      throw new Error('An error occurred');
+      setErrorType(ErrorMessageType.Loading);
     }
-  }, [setTodos]);
+  }, [setTodos, setErrorType]);
 
   useEffect(() => {
     handleGetTodos();

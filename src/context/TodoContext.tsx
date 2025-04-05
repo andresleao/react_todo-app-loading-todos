@@ -7,7 +7,7 @@ type TodoContextType = {
   todos: Todo[] | null;
   setTodos: (todo: Todo[]) => void;
   errorType: ErrorMessageType | null;
-  setErrorType: (error: ErrorMessageType) => void;
+  setErrorType: (error: ErrorMessageType | null) => void;
   selectedFilter: TodoFilterType;
   setSelectedFilter: (filterType: TodoFilterType) => void;
   isListLoading: boolean;

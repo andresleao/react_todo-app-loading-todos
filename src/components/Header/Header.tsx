@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { TodoContext } from '../../context/TodoContext';
 import { ErrorMessageType } from '../../types/ErrorMessageType';
 import { createTodo, getTodos, updateTodo, USER_ID } from '../../api/todos';
@@ -10,7 +10,9 @@ import cn from 'classnames';
 export const Header = () => {
   const { todos, setTodos, setErrorType, setIsListLoading } =
     useContext(TodoContext);
+
   const [title, setTitle] = useState('');
+  const titleInput = useRef<HTMLInputElement>(null);
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -55,7 +57,7 @@ export const Header = () => {
 
     const newTodo: Omit<Todo, 'id'> = {
       userId: USER_ID,
-      title: title,
+      title: title.trim(),
       completed: false,
     };
 
@@ -83,6 +85,12 @@ export const Header = () => {
 
   const isAllTodosCompleted = todos && todos?.every(todo => todo.completed);
 
+  useEffect(() => {
+    if (titleInput?.current) {
+      titleInput.current.focus();
+    }
+  }, []);
+
   return (
     <header className="todoapp__header">
       <button
@@ -96,6 +104,7 @@ export const Header = () => {
 
       <form onSubmit={handleOnSubmit}>
         <input
+          ref={titleInput}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
